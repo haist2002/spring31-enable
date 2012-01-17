@@ -20,44 +20,21 @@ public class ConfigurationClass {
  	}
 	
 	@Configuration
-	@Import(MyHelloConfig.class)
+	@EnableHello
 	public static class AppConfig {
+	}
+
+	@Import(HelloConfig.class)
+	@interface EnableHello {
 	}
 	
 	@Configuration
-	public static class MyHelloConfig extends HelloConfig {
-
-		@Override
-		public void configName(NameRegistry registry) {
-			registry.setName("Toby");
-		}
-	}
-	
 	public static class HelloConfig {
 		@Bean Hello hello() {
 			Hello hello = new Hello();
-			configName(new HelloNameRegistry(hello));
+			hello.setName("Toby");
 			return hello;
 		}
 		
-		public void configName(NameRegistry nameRegistry) {
-		}
-	}
-	
-	interface NameRegistry {
-		void setName(String name);
-	}
-	
-	static class HelloNameRegistry implements NameRegistry {
-		Hello hello;
-		
-		public HelloNameRegistry(Hello hello) {
-			this.hello = hello;
-		}
-
-		@Override
-		public void setName(String name) {
-			hello.setName(name);
-		}
 	}
 }
