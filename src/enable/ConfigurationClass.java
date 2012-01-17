@@ -1,11 +1,18 @@
 package enable;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportAware;
+import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
 import enable.bean.Hello;
@@ -27,26 +34,24 @@ public class ConfigurationClass {
 	public static class AppConfig {
 	}
 
-	@Import(HelloConfig.class)
-	@interface EnableHello {
+	@Retention(RetentionPolicy.RUNTIME)
+	@Import(HelloBeanDefinitionRegistry.class)
+	public @interface EnableHello {
 		String name();
 	}
 	
-	@Configuration
-	public static class HelloConfig implements ImportAware {
-		@Bean Hello hello() {
-			Hello hello = new Hello();
-			return hello;
-		}
-		
-		@Autowired Hello hello;
-
+	public static class HelloBeanDefinitionRegistry implements ImportBeanDefinitionRegistrar {
 		@Override
-		public void setImportMetadata(AnnotationMetadata importMetadata) {
-			hello.setName((String) 
-					importMetadata.getAnnotationAttributes(
-							EnableHello.class.getName()).get("name"));
+		public void registerBeanDefinitions(
+				AnnotationMetadata importingClassMetadata,
+				BeanDefinitionRegistry registry) {
+			BeanDefinition bd = new RootBeanDefinition(Hello.class);
+			bd.getPropertyValues().add("name", 
+					(String)importingClassMetadata.getAnnotationAttributes(EnableHello.class.getName()).get("name")
+					);
+			registry.registerBeanDefinition("hello", bd);
 		}
 		
 	}
+	
 }
