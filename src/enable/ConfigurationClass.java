@@ -23,30 +23,33 @@ public class ConfigurationClass {
  	}
 	
 	@Configuration
-	@EnableHello(name="Spring")
-	public static class AppConfig {
+	@EnableHello
+	public static class AppConfig implements NameConfigurer {
+		@Override
+		public void configName(Hello hello) {
+			hello.setName("Toby");
+		}
 	}
 
 	@Import(HelloConfig.class)
 	@interface EnableHello {
-		String name();
 	}
 	
 	@Configuration
-	public static class HelloConfig implements ImportAware {
+	public static class HelloConfig  {
+		@Autowired NameConfigurer configurer;
+		
 		@Bean Hello hello() {
 			Hello hello = new Hello();
+			configurer.configName(hello);
 			return hello;
 		}
 		
 		@Autowired Hello hello;
 
-		@Override
-		public void setImportMetadata(AnnotationMetadata importMetadata) {
-			hello.setName((String) 
-					importMetadata.getAnnotationAttributes(
-							EnableHello.class.getName()).get("name"));
-		}
-		
+	}
+	
+	interface NameConfigurer {
+		void configName(Hello hello);
 	}
 }
