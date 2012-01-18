@@ -9,6 +9,7 @@
 	<configs>
 		<config>src/enable/context.xml</config>
 		<config>src/enable/infrastructure.xml</config>
+		<config>src/enable/hibernate.xml</config>
 	</configs>
 	<configSets>
 	</configSets>
